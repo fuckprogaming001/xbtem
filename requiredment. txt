@@ -1,0 +1,28 @@
+telegram_bot_project/
+│
+├── bot.py                  🔹 Main entrypoint (main function)
+├── config.py               🔹 Configurations (.env loader, tokens)
+├── database.py             🔹 MongoDB connection, collections
+├── handlers/
+│   ├── start.py            🔹 /start command
+│   ├── withdraw.py         🔹 /withdraw flow
+│   ├── account.py          🔹 /account command
+│   ├── auth_flow.py        🔹 Phone login + code verify
+│   └── callbacks.py        🔹 Inline button handler
+├── services/
+│   ├── telethon_client.py  🔹 Telethon login/session logic
+│   └── monitor.py          🔹 Background monitor task
+├── utils/
+│   ├── logger.py           🔹 Logger setup
+│   └── capacity.py         🔹 Country capacity list
+├── sessions/               🔹 Saved session files
+├── .env
+└── requirements.txt
+
+
+python-telegram-bot[ext]
+telethon
+pymongo
+python-dotenv
+pytz
+asyncio
