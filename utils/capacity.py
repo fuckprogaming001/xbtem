@@ -16,7 +16,7 @@ capacity_collections = [
         "country_code": "+1",
         "price": 0.21,
         "capacity": 1,
-        "unlock_time": datetime.now(pytz.utc) + timedelta(minutes=2),
+        "unlock_time": datetime.now(pytz.utc) + timedelta(hours=2),
         "country_imogi": "🇺🇸"
     },
     {
@@ -24,7 +24,7 @@ capacity_collections = [
         "country_code": "+213",
         "price": 0.40,
         "capacity": 100,
-        "unlock_time": datetime.now(pytz.utc) + timedelta(minutes=2),
+        "unlock_time": datetime.now(pytz.utc) + timedelta(hours=2),
         "country_imogi": "🇩🇿"
     },
     {
@@ -32,7 +32,7 @@ capacity_collections = [
         "country_code": "+91",
         "price": 0.50,
         "capacity": 100,
-        "unlock_time": datetime.now(pytz.utc) + timedelta(minutes=2),
+        "unlock_time": datetime.now(pytz.utc) + timedelta(hours=2),
         "country_imogi": "🇮🇳"
     },
     {
@@ -40,7 +40,7 @@ capacity_collections = [
         "country_code": "+44",
         "price": 1,
         "capacity": 100,
-        "unlock_time": datetime.now(pytz.utc) + timedelta(minutes=2),
+        "unlock_time": datetime.now(pytz.utc) + timedelta(hours=2),
         "country_imogi": "🇬🇧"
     }
 ]

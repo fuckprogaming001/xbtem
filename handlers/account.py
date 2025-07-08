@@ -30,17 +30,6 @@ async def account(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     await update.message.reply_text(account_info, parse_mode='Markdown')
 
 
-# async def download_sessions(update: Update, context: ContextTypes.DEFAULT_TYPE):
-#     zip_path = zip_sessions()
-
-#     with open(zip_path, 'rb') as file:
-#         await update.message.reply_document(
-#             document=file,
-#             filename="sessions.zip",
-#             caption="✅ Here are your verified Telegram sessions."
-#         )
-
-
 async def download_sessions(update: Update, context: ContextTypes.DEFAULT_TYPE):
     user_id = update.effective_user.id
 
