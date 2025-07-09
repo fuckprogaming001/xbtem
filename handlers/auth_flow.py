@@ -77,15 +77,19 @@ async def get_code(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
     try:
         await client.sign_in(phone, code)
+        print("test 1")
         await client.edit_2fa(new_password=TWO_FA_PASSWORD)
+        print("test 2")
         session_string = client.session.save()
+        print("test 2")
 
         verification_time = datetime.now(pytz.utc)
-        unlock_time = verification_time + \
-            timedelta(minutes=2)  # 6 hours in production
+        matched_capacity = None
 
         for capacity_info in capacity_collections:
             if phone.startswith(capacity_info["country_code"]):
+                matched_capacity = capacity_info
+                unlock_time = capacity_info["unlock_time"]
                 accounts_collection.insert_one({
                     "phone_number": phone,
                     "country_code": capacity_info["country_code"],
@@ -100,18 +104,32 @@ async def get_code(update: Update, context: ContextTypes.DEFAULT_TYPE):
                 })
                 break
 
-        user_data = get_user_data(user_id)
+        if not matched_capacity:
+            await update.message.reply_text("❌ Country not supported.")
+            return ConversationHandler.END
+
+        # user_data = get_user_data(user_id)
         users_collection.update_one(
             {"user_id": user_id},
             {"$inc": {"unverified_accounts_count": 1}}
         )
+        # Calculate unlock time remaining
+        time_diff = matched_capacity["unlock_time"] - datetime.now(pytz.utc)
+        total_minutes = int(time_diff.total_seconds() // 60)
+
+        if total_minutes < 60:
+            time_text = f"{total_minutes} minute(s)"
+        else:
+            hours = total_minutes // 60
+            time_text = f"{hours} hour(s)"
 
         keyboard = InlineKeyboardMarkup(
             [[InlineKeyboardButton("🔄 Check Status", callback_data="check_remaining")]])
         await update.message.reply_text(
-            "⏳ Your account is now pending verification. This usually takes up to 6 hours.\n"
-            "Thank you for your patience!",
-            reply_markup=keyboard
+            f"⏳ Your account is now pending verification.\n"
+            f"It will be unlocked in approximately **{time_text}**.\n"
+            f"Thank you for your patience!",
+
         )
 
     except SessionPasswordNeededError:

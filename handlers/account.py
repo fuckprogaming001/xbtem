@@ -13,7 +13,7 @@ async def account(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     if not user_data:
         await update.message.reply_text("You don't have an account yet. Use /start to begin.")
         return
-
+    print(user_data)
     join_date_str = user_data["join_date"].strftime('%Y-%m-%d %H:%M:%S UTC')
     account_info = f"""
 ╭━━━✨ **Account Summary** ✨━━━╮
