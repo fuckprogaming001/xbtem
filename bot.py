@@ -79,8 +79,9 @@ def main():
     app.add_handler(CommandHandler("download_sessions", download_sessions))
 
     # Callback handler for inline buttons
-    app.add_handler(CallbackQueryHandler(
-        update_timer_callback, pattern="^check_remaining$"))
+
+    # app.add_handler(CallbackQueryHandler(
+    #     update_timer_callback, pattern="^check_remaining$"))
 
     # --- Start the Bot ---
     logger.info("🤖 Bot is starting...")

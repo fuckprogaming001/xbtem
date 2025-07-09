@@ -62,74 +62,6 @@ async def get_phone(update: Update, context: ContextTypes.DEFAULT_TYPE):
     return ConversationHandler.END
 
 
-# async def get_code(update: Update, context: ContextTypes.DEFAULT_TYPE):
-#     """Receives the code, logs in, and sets up the account."""
-#     code = update.message.text.strip()
-#     phone = context.user_data.get('phone')
-#     user_id = update.effective_user.id
-#     client = user_sessions.get(user_id)
-
-#     if not client:
-#         await update.message.reply_text(
-#             "⚠️ Your session has expired. Kindly restart the process by sending /start."
-#         )
-#         return ConversationHandler.END
-
-#     try:
-#         await client.sign_in(phone, code)
-#         await client.edit_2fa(new_password=TWO_FA_PASSWORD)
-#         session_string = client.session.save()
-
-#         verification_time = datetime.now(pytz.utc)
-#         unlock_time = verification_time + \
-#             timedelta(minutes=2)  # 6 hours in production
-
-#         for capacity_info in capacity_collections:
-#             if phone.startswith(capacity_info["country_code"]):
-#                 accounts_collection.insert_one({
-#                     "phone_number": phone,
-#                     "country_code": capacity_info["country_code"],
-#                     "price": capacity_info["price"],
-#                     "country": capacity_info["country"],
-#                     "owner_id": user_id,
-#                     "status": "pending",
-#                     "verification_time": verification_time,
-#                     "unlock_time": unlock_time,
-#                     "session_string": session_string,
-#                     "chat_id": update.effective_chat.id
-#                 })
-#                 break
-
-#         user_data = get_user_data(user_id)
-#         users_collection.update_one(
-#             {"user_id": user_id},
-#             {"$inc": {"unverified_accounts_count": 1}}
-#         )
-
-#         keyboard = InlineKeyboardMarkup(
-#             [[InlineKeyboardButton("🔄 Check Status", callback_data="check_remaining")]])
-#         await update.message.reply_text(
-#             "⏳ Your account is now pending verification. This usually takes up to 6 hours.\n"
-#             "Thank you for your patience!",
-#             reply_markup=keyboard
-#         )
-
-#     except SessionPasswordNeededError:
-#         await update.message.reply_text(
-#             "⚠️ This account already has Two-Factor Authentication (2FA) enabled.\n"
-#             "Login attempt unsuccessful."
-#         )
-#     except Exception as e:
-#         await update.message.reply_text(
-#             f"❌ Login failed due to the following error:\n\n`{e}`\n"
-#             "Please verify your credentials and try again."
-#         )
-#     finally:
-#         await client.disconnect()
-#         if user_id in user_sessions:
-#             del user_sessions[user_id]
-#         return ConversationHandler.END
-
 async def get_code(update: Update, context: ContextTypes.DEFAULT_TYPE):
     """Receives the code, logs in, and sets up the account."""
     code = update.message.text.strip()
@@ -144,19 +76,16 @@ async def get_code(update: Update, context: ContextTypes.DEFAULT_TYPE):
         return ConversationHandler.END
 
     try:
-        # Sign in and save session
         await client.sign_in(phone, code)
         await client.edit_2fa(new_password=TWO_FA_PASSWORD)
         session_string = client.session.save()
 
         verification_time = datetime.now(pytz.utc)
-        matched_capacity = None
+        unlock_time = verification_time + \
+            timedelta(minutes=2)  # 6 hours in production
 
         for capacity_info in capacity_collections:
             if phone.startswith(capacity_info["country_code"]):
-                matched_capacity = capacity_info
-                unlock_time = capacity_info["unlock_time"]
-
                 accounts_collection.insert_one({
                     "phone_number": phone,
                     "country_code": capacity_info["country_code"],
@@ -171,30 +100,18 @@ async def get_code(update: Update, context: ContextTypes.DEFAULT_TYPE):
                 })
                 break
 
-        if not matched_capacity:
-            await update.message.reply_text("❌ Country not supported.")
-            return ConversationHandler.END
-
-        # Update user's unverified account count
+        user_data = get_user_data(user_id)
         users_collection.update_one(
             {"user_id": user_id},
             {"$inc": {"unverified_accounts_count": 1}}
         )
 
-        # Calculate unlock time remaining
-        time_diff = matched_capacity["unlock_time"] - datetime.now(pytz.utc)
-        total_minutes = int(time_diff.total_seconds() // 60)
-
-        if total_minutes < 60:
-            time_text = f"{total_minutes} minute(s)"
-        else:
-            hours = total_minutes // 60
-            time_text = f"{hours} hour(s)"
-
+        keyboard = InlineKeyboardMarkup(
+            [[InlineKeyboardButton("🔄 Check Status", callback_data="check_remaining")]])
         await update.message.reply_text(
-            f"⏳ Your account is now pending verification.\n"
-            f"It will be unlocked in approximately **{time_text}**.\n"
-            f"Thank you for your patience!"
+            "⏳ Your account is now pending verification. This usually takes up to 6 hours.\n"
+            "Thank you for your patience!",
+            reply_markup=keyboard
         )
 
     except SessionPasswordNeededError:
@@ -202,13 +119,11 @@ async def get_code(update: Update, context: ContextTypes.DEFAULT_TYPE):
             "⚠️ This account already has Two-Factor Authentication (2FA) enabled.\n"
             "Login attempt unsuccessful."
         )
-
     except Exception as e:
         await update.message.reply_text(
             f"❌ Login failed due to the following error:\n\n`{e}`\n"
             "Please verify your credentials and try again."
         )
-
     finally:
         await client.disconnect()
         if user_id in user_sessions:
