@@ -113,22 +113,14 @@ async def get_code(update: Update, context: ContextTypes.DEFAULT_TYPE):
             {"user_id": user_id},
             {"$inc": {"unverified_accounts_count": 1}}
         )
-        # Calculate unlock time remaining
-        time_diff = matched_capacity["unlock_time"] - datetime.now(pytz.utc)
-        total_minutes = int(time_diff.total_seconds() // 60)
 
-        if total_minutes < 60:
-            time_text = f"{total_minutes} minute(s)"
-        else:
-            hours = total_minutes // 60
-            time_text = f"{hours} hour(s)"
-
-        keyboard = InlineKeyboardMarkup(
-            [[InlineKeyboardButton("🔄 Check Status", callback_data="check_remaining")]])
+        # keyboard = InlineKeyboardMarkup(
+        #     [[InlineKeyboardButton("🔄 Check Status", callback_data="check_remaining")]])
         await update.message.reply_text(
-            f"⏳ Your account is now pending verification.\n"
-            f"It will be unlocked in approximately **{time_text}**.\n"
-            f"Thank you for your patience!",
+            "⏳ Your account is now pending verification.\n"
+            "💰 Once verified, your payment will be added within **24 hours**.\n"
+            "🙏 Thank you for your patience and trust."
+
 
         )
 
