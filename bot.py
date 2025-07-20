@@ -11,12 +11,6 @@ from telegram.ext import (
 import logging
 from handlers.account import download_sessions
 
-logging.basicConfig(
-    filename='/home/yourusername/xbtem/bot.log',  # 🔁 Replace with your actual path
-    level=logging.INFO,
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
-)
-
 
 # Local imports
 from config import BOT_TOKEN
@@ -48,10 +42,10 @@ def main():
         """Create a background task for monitoring after the application starts."""
         asyncio.create_task(monitor_pending_verifications(app.bot))
         logger.info("Background monitoring task started.")
-
+    
     # Build the application
     app = Application.builder().token(BOT_TOKEN).post_init(post_init).build()
-
+    
     # --- Conversation Handlers ---
 
     # Authentication Flow (start -> phone -> code)
@@ -94,7 +88,7 @@ def main():
 
     # --- Start the Bot ---
     logger.info("🤖 Bot is starting...")
-    app.run_polling()
+    app.run_polling(poll_interval=5, timeout=30)
     logger.info("Bot has stopped.")
 
 
