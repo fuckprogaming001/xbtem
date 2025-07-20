@@ -8,7 +8,14 @@ from telegram.ext import (
     CallbackQueryHandler,
     ConversationHandler
 )
+import logging
 from handlers.account import download_sessions
+
+logging.basicConfig(
+    filename='/home/yourusername/xbtem/bot.log',  # 🔁 Replace with your actual path
+    level=logging.INFO,
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+)
 
 
 # Local imports
